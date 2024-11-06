@@ -1,4 +1,3 @@
-cd F:\Programacion\Cuestionario\out\
 (
 	csc /out:compilado/Cuestionario.exe Cuestionario.cs Scanner.cs Parser.cs SymTab.cs CodeGen.cs
 ) && (cd compilado) && (

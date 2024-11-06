@@ -67,14 +67,14 @@ Term<out int type> = Factor<out type> (. int type1; .) {
 
 Factor<out int type> = (. type = undefined; .) (
 	VarReference<out type>
-	| '-' Number<out type>
-	| Number<out type>
+	| '-' number    (. type = integer; .)
+	| number        (. type = integer; .)
 	| "true"		(. type = boolean; .)
 	| "false"		(. type = boolean; .)
 ).
 
 
-Number<out int type> = number (. type = integer; .).
+Number<out int value> = number (. value = Convert.ToInt32(t.val); .).
 
 Ident<out string name> = ident (. name = t.val; .).
 VarReference<out int type> = (. string name; .) Ident<out name> (. type = tab.getType(name); .).
@@ -86,13 +86,14 @@ Question =
 	string name;
 	int inputType = -1;
 	List<string> options = new List<string>();
-	string correct;
+	string correct = "";
 	.)
 	"question" LiteralString<out question>
 	(Options | Input<out inputType> | InputAssign<out name, out inputType>)
-	[ Correct<out correct> ] [ "value" number ]
+	[ Correct<out correct> ] [ "value" Number<out value> ]
 	(.
-	
+	gen.addPrint(question);
+	gen.addOnCorrect(correct, value);
 	.).
 
 LiteralString<out string val> = string (. val = t.val; .).

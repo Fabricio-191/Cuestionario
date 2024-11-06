@@ -24,8 +24,8 @@ namespace Cuestionario {
 			addCode("set /a last_answer=\n");
 		}
 
-		public void addCheckAnswer(string correctAnswer) {
-			addCode("if %last_answer% == " + correctAnswer + " (set /a score+=1)\n");
+		public void addOnCorrect(string correctAnswer, int value) {
+			addCode("if %last_answer% == " + correctAnswer + " (\n\tset /a score+=" + value + "\n)\n");
 		}
 
 		public void addFinalScore() {

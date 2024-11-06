@@ -12,6 +12,7 @@ echo B) Par�s
 echo C) Roma
 set /p answer1=Respuesta: 
 if /i "!answer1!"=="B" (
+	echo asd
 	set /a score+=1
 )
 

@@ -92,8 +92,7 @@ Question =
 	(Options | Input<out inputType> | InputAssign<out name, out inputType>)
 	[ Correct<out correct> ] [ "value" Number<out value> ]
 	(.
-	gen.addPrint(question);
-	gen.addOnCorrect(correct, value);
+	gen.addQuestion(question, correct, value);
 	.).
 
 LiteralString<out string val> = string (. val = t.val; .).

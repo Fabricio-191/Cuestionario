@@ -16,15 +16,9 @@ namespace Cuestionario {
 			addCode("echo " + message + "\n");
 		}
 
-		public void addQuestion(string question) {
+		public void addQuestion(string question, string correctAnswer, int value) {
 			addPrint(question);
-		}
-
-		public void input() {
-			addCode("set /a last_answer=\n");
-		}
-
-		public void addOnCorrect(string correctAnswer, int value) {
+			addCode("set /p last_answer=\"Respuesta: \"\n");
 			addCode("if %last_answer% == " + correctAnswer + " (\n\tset /a score+=" + value + "\n)\n");
 		}
 

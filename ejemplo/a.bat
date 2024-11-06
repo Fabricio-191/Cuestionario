@@ -6,9 +6,9 @@ set /a score=0
 echo Bienvenido al cuestionario!
 
 echo.
-echo Pregunta 1: ¿Cuál es la capital de Francia?
+echo Pregunta 1: ï¿½Cuï¿½l es la capital de Francia?
 echo A) Madrid
-echo B) París
+echo B) Parï¿½s
 echo C) Roma
 set /p answer1=Respuesta: 
 if /i "!answer1!"=="B" (
@@ -16,7 +16,7 @@ if /i "!answer1!"=="B" (
 )
 
 echo.
-echo Pregunta 2: ¿Cuál es el resultado de 5 + 7?
+echo Pregunta 2: ï¿½Cuï¿½l es el resultado de 5 + 7?
 echo A) 10
 echo B) 12
 echo C) 14
@@ -26,10 +26,10 @@ if /i "!answer2!"=="B" (
 )
 
 echo.
-echo Pregunta 3: ¿Cuál es el océano más grande del mundo?
-echo A) Atlántico
-echo B) Índico
-echo C) Pacífico
+echo Pregunta 3: ï¿½Cuï¿½l es el ocï¿½ano mï¿½s grande del mundo?
+echo A) Atlï¿½ntico
+echo B) ?ndico
+echo C) Pacï¿½fico
 set /p answer3=Respuesta: 
 if /i "!answer3!"=="C" (
 	set /a score+=1
@@ -37,7 +37,7 @@ if /i "!answer3!"=="C" (
 
 echo.
 echo Has terminado el cuestionario.
-echo Tu puntuación es: !score! de 3.
+echo Tu puntuaciï¿½n es: !score! de 3.
 
 endlocal
 pause

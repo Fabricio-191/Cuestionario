@@ -1,0 +1,154 @@
+COMPILER Cuestionario
+
+	const int // types
+	  undef = 0, integer = 1, boolean = 2;
+
+	const int // object kinds
+	  var = 0, proc = 1;
+
+	public SymbolTable   tab;
+	public CodeGenerator gen;
+  
+/*--------------------------------------------------------------------------*/
+CHARACTERS
+  letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
+  digit = "0123456789".
+  cr  = '\r'.
+  lf  = '\n'.
+  tab = '\t'.
+
+TOKENS
+  ident  = letter {letter | digit}.
+  number = digit {digit}.
+
+COMMENTS FROM "/*" TO "*/" NESTED
+COMMENTS FROM "//" TO lf
+
+IGNORE cr + lf + tab
+
+
+PRODUCTIONS
+
+AddOp<out Op op> = (. op = Op.ADD; .) ( '+' | '-' (. op = Op.SUB; .) ).
+MulOp<out Op op> = (. op = Op.MUL; .) ( '*' | '/' (. op = Op.DIV; .) ).
+RelOp<out Op op> = (. op = Op.EQU; .) ( "==" | '<' (. op = Op.LSS; .) | '>' (. op = Op.GTR; .) ).
+
+Expr<out int type> = MathExpr<out type> [
+	(. int type1; Op op; .)
+  	RelOp<out op>
+    MathExpr<out type1>  (.
+		if (type != type1) SemErr("incompatible types");
+		gen.Emit(op); type = boolean;
+	.)
+].
+
+BooleanExpr = (. int type; .) Expr<out type> (. if (type != boolean) SemErr("boolean type expected"); .).
+
+MathExpr<out int type> = Term<out type> (. int type1; Op op; .) {
+	AddOp<out op> Term<out type1> (.
+		if (type != integer || type1 != integer) SemErr("integer type expected");
+		gen.Emit(op);
+	.)
+}.
+
+Term<out int type> = Factor<out type> (. int type1; Op op; .) {
+	MulOp<out op> Factor<out type1> (.
+		if (type != integer || type1 != integer) SemErr("integer type expected");
+		gen.Emit(op);
+	.)
+}.
+
+Factor<out int type> = (. type = undef; .) (
+	VarReference<out type>
+	| '-' Number<out type> (. gen.Emit(Op.NEG); .)
+	| Number<out type>
+	| "true"		(. gen.Emit(Op.CONST, 1); type = boolean; .)
+	| "false"		(. gen.Emit(Op.CONST, 0); type = boolean; .)
+).
+
+
+VarDecl = (. string name; int type; .) Type<out type> Ident<out name> (. tab.NewObj(name, var, type); .)  ';'.
+
+VarAssign = (. int type; string name; .) Ident<out name> '=' Expr<out type> ';'
+(.
+	Obj obj = tab.Find(name);
+	if (obj.kind != var) SemErr("cannot assign to procedure");
+	if (type != obj.type) SemErr("incompatible types");
+	if (obj.level == 0) gen.Emit(Op.STOG, obj.adr);
+	else gen.Emit(Op.STO, obj.adr);
+.).
+
+VarReference<out int type> = (. string name; .) Ident<out name>
+  	(.
+		Obj obj = tab.Find(name);
+		type = obj.type;
+		if (obj.kind == var) {
+			if (obj.level == 0) gen.Emit(Op.LOADG, obj.adr);
+			else gen.Emit(Op.LOAD, obj.adr);
+		} else SemErr("variable expected");
+	.).
+
+Number<out int type> = number (. type = integer; gen.Emit(Op.CONST, Convert.ToInt32(t.val)); .) .
+
+Type<out int type> = (. type = undef; .) (
+	"int"  (. type = integer; .) |
+	"bool" (. type = boolean; .)
+).
+
+Ident<out string name> = ident (. name = t.val; .).
+
+Stat = VarDecl
+	| VarAssign
+	| IfStat
+	| WhileStat
+	| ReadStat
+	| WriteStat.
+
+CodeBlock = '{' { Stat | VarDecl } '}'.
+
+IfStat = "if" '(' BooleanExpr ')'  
+	(.
+		int adr, adr2;
+		gen.Emit(Op.FJMP, 0);
+		adr = gen.pc - 2;
+	.)
+	Stat [
+		"else" (. gen.Emit(Op.JMP, 0); adr2 = gen.pc - 2; gen.Patch(adr, gen.pc); adr = adr2; .) Stat
+	]
+	(. gen.Patch(adr, gen.pc); .).
+	
+WhileStat = (. int loopstart = gen.pc; .) "while" '(' BooleanExpr ')'
+	(. gen.Emit(Op.FJMP, 0); int adr = gen.pc - 2; .) 
+	Stat
+	(. gen.Emit(Op.JMP, loopstart); gen.Patch(adr, gen.pc); .).
+
+ReadStat = (. string name; .) "read" Ident<out name> ';' (.
+	Obj obj = tab.Find(name);
+	if (obj.type != integer) SemErr("integer type expected");
+	gen.Emit(Op.READ);
+	if (obj.level == 0) gen.Emit(Op.STOG, obj.adr);
+	else gen.Emit(Op.STO, obj.adr);
+.).
+
+WriteStat = (. int type; .) "write" Expr<out type> ';' (.
+	if (type != integer) SemErr("integer type expected");
+	gen.Emit(Op.WRITE);
+.).
+
+Cuestionario = (.
+	tab.OpenScope(); 
+	Obj obj = tab.NewObj("Main", proc, undef);
+	obj.adr = gen.pc;
+    gen.progStart = gen.pc; 
+	gen.Emit(Op.ENTER, 0);
+	int adr = gen.pc - 2;
+.)
+{ VarDecl | Stat }
+(.
+	gen.Emit(Op.LEAVE);
+	gen.Emit(Op.RET);
+	gen.Patch(adr, tab.topScope.nextAdr);
+	tab.CloseScope();
+.).
+
+END Cuestionario.

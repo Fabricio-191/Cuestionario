@@ -82,18 +82,17 @@ VarReference<out int type> = (. string name; .) Ident<out name> (. type = tab.ge
 Question =
 	(.
 	string question;
-	int value = 1;
 	string name;
 	int inputType = -1;
 	List<string> options = new List<string>();
+	int value = 1;
 	string correct = "";
+	bool includes = false;
 	.)
-	"question" LiteralString<out question>
+	"question" LiteralString<out question> (. gen.addPrint(question); .)
 	(Options | Input<out inputType> | InputAssign<out name, out inputType>)
-	[ Correct<out correct> ] [ "value" Number<out value> ]
-	(.
-	gen.addQuestion(question, correct, value);
-	.).
+	[ Correct<out correct, out includes> ] [ "value" Number<out value> ]
+	(. gen.addAnswerCheck(correct, value, includes); .).
 
 LiteralString<out string val> = string (. val = t.val; .).
 
@@ -104,23 +103,23 @@ Options = (. List<string> options = new List<string>(); .)
 Input<out int type> = (. type = undefined; .) "input" ( "number" (. type = integer; .)  | "text" (. type = str; .) ).
 InputAssign<out string name, out int type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
 
-Correct<out string correct> = "correct" [ "includes" ] string (. correct = t.val; .).
+Correct<out string correct, out bool includes> = (. includes = false; .)
+	"correct" [ "includes" (. includes = true; .) ]
+	string (. correct = t.val; .).
 
 IfStat = "if" '(' BooleanExpr ')'
-	(. /* gen... */ .)
 	Stat
-	(. /* gen... */ .)
 	[
-		(. /* gen... */ .)
 		"else" Stat
-		(. /* gen... */ .)
 	].
 
-WriteStat = (. int type; .) "print" (Expr<out type> | string)
+WriteStat = (. int type = -1; .) "print" (Expr<out type> | string)
 	(. /* gen... */ .).
 
-Stat = Question | IfStat | WriteStat.
+Stat = Question | IfStat | WriteStat | (
+	'(' (. gen.addCode("("); .) Stat (. gen.addCode(")"); .) ')'
+).
 
-Cuestionario = { Stat }.
+Cuestionario = Stat { Stat } (. gen.addFinalScore(); .).
 
 END Cuestionario.

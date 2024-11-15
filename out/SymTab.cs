@@ -9,6 +9,7 @@ namespace Cuestionario {
 		
 		public SymbolTable(Parser parser) {
 			this.parser = parser;
+			this.variables["score"] = 1; // int
 		}
 
 		public void setVariable(string name, int type) {

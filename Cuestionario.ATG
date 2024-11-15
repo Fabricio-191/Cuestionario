@@ -84,7 +84,6 @@ Question =
 	string question;
 	string name;
 	int inputType = -1;
-	List<string> options = new List<string>();
 	int value = 1;
 	string correct = "";
 	bool includes = false;
@@ -117,7 +116,7 @@ WriteStat = (. int type = -1; .) "print" (Expr<out type> | string)
 	(. /* gen... */ .).
 
 Stat = Question | IfStat | WriteStat | (
-	'(' (. gen.addCode("("); .) Stat (. gen.addCode(")"); .) ')'
+	'(' Stat ')'
 ).
 
 Cuestionario = Stat { Stat } (. gen.addFinalScore(); .).

@@ -15,7 +15,11 @@ namespace Cuestionario {
 		}
 
 		public void addPrint(string message) {
-			addCode("Write-Host " + message + "\n");
+			addCode("Write-Host \"" + message + "\"\n");
+		}
+
+		public void addOption(string option) {
+			addPrint("* " + option);
 		}
 
 		public void addFinalScore() {
@@ -24,12 +28,13 @@ namespace Cuestionario {
 
 		public void addAnswerCheck(string correctAnswer, int value, bool includes) {
 			addCode("$last_answer = Read-Host \"Respuesta\"\n\n");
+			addPrint("");
 			if(correctAnswer == "") return; // no correct answer
 
 			if(includes){
-				addCode("if ($last_answer.ToLower() -like " + correctAnswer.ToLower() + ")");
+				addCode("if ($last_answer.ToLower() -like \"*" + correctAnswer.ToLower() + "*\")");
 			}else{
-				addCode("if ($last_answer.ToLower() -eq " + correctAnswer.ToLower() + ")");
+				addCode("if ($last_answer.ToLower() -eq \"" + correctAnswer.ToLower() + "\")");
 			}
 			addCode("{ $score += " + value + " }\n\n");
 			max_score += value;

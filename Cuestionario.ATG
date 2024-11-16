@@ -27,7 +27,7 @@ CHARACTERS
 TOKENS
   ident  = letter {letter | digit}.
   number = digit {digit}.
-  string = quote {letter | space | digit | ',' | symbols} quote.
+  stringToken = quote {letter | space | digit | ',' | symbols} quote.
 
 COMMENTS FROM "/*" TO "*/" NESTED
 COMMENTS FROM "//" TO lf
@@ -93,26 +93,26 @@ Question =
 	[ Correct<out correct, out includes> ] [ "value" Number<out value> ]
 	(. gen.addAnswerCheck(correct, value, includes); .).
 
-LiteralString<out string val> = string (. val = t.val; .).
+LiteralString<out string val> = stringToken (.
+	val = t.val.Substring(1, t.val.Length - 2); // remove quotes
+.).
 
-Options = (. List<string> options = new List<string>(); .)
-	"options" string (. options.Add(t.val); .)
-	{ ',' string (. options.Add(t.val); .) }.
+Options = (. string str; .)
+	"options" LiteralString<out str> (. gen.addOption(str); .)
+	{ ',' LiteralString<out str> (. gen.addOption(str); .) }.
 
 Input<out int type> = (. type = undefined; .) "input" ( "number" (. type = integer; .)  | "text" (. type = str; .) ).
 InputAssign<out string name, out int type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
 
 Correct<out string correct, out bool includes> = (. includes = false; .)
 	"correct" [ "includes" (. includes = true; .) ]
-	string (. correct = t.val; .).
+	LiteralString<out correct>.
 
 IfStat = "if" '(' BooleanExpr ')'
 	Stat
-	[
-		"else" Stat
-	].
+	[ "else" Stat ].
 
-WriteStat = (. int type = -1; .) "print" (Expr<out type> | string)
+WriteStat = (. int type = -1; .) "print" (Expr<out type> | stringToken)
 	(. /* gen... */ .).
 
 Stat = Question | IfStat | WriteStat | (

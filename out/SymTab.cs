@@ -16,7 +16,6 @@ namespace Cuestionario {
 			variables[name] = type;
 		}
 
-		// search the name in all open scopes and return its object node
 		public int getType(string name) {
 			if (variables.ContainsKey(name)) {
 				return variables[name];
@@ -24,7 +23,7 @@ namespace Cuestionario {
 			
 			parser.SemErr(name + " is undeclared");
 		
-			return 0;
+			return 0; // undefined type
 		}
 
 	} // end SymbolTable

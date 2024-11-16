@@ -27,16 +27,19 @@ namespace Cuestionario {
 		}
 
 		public void addAnswerCheck(string correctAnswer, int value, bool includes) {
-			addCode("$last_answer = Read-Host \"Respuesta\"\n\n");
-			addPrint("");
-			if(correctAnswer == "") return; // no correct answer
+			addCode("\n$last_answer = Read-Host \"Respuesta\"\n");
+			if(correctAnswer == ""){
+				// no correct answer
+				addCode("\n\n\n");
+				return;
+			};
 
 			if(includes){
 				addCode("if ($last_answer.ToLower() -like \"*" + correctAnswer.ToLower() + "*\")");
 			}else{
 				addCode("if ($last_answer.ToLower() -eq \"" + correctAnswer.ToLower() + "\")");
 			}
-			addCode("{ $score += " + value + " }\n\n");
+			addCode("{ $score += " + value + " }\n\n\n\n");
 			max_score += value;
 		}
 

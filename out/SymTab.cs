@@ -10,9 +10,14 @@ namespace Cuestionario {
 		public SymbolTable(Parser parser) {
 			this.parser = parser;
 			this.variables["score"] = 1; // int
+			this.variables["last_answer"] = 1; // int
 		}
 
 		public void setVariable(string name, int type) {
+			if(name == "score" || name == "last_answer") {
+				parser.SemErr(name + " is a reserved variable");
+				return;
+			}
 			variables[name] = type;
 		}
 

@@ -5,29 +5,47 @@ using System.IO;
 
 namespace Cuestionario {
 	public class CodeGenerator {
-		private string code = "set /a score=0\nset /a last_answer=0\n";
-		
-		public void addCode(string code) {
-			Console.WriteLine(code);
+		private string code = "$score=0\n\n";
+
+		private int max_score = 0;
+
+		private void addCode(string code) {
+			// Console.WriteLine(code);
 			this.code += code;
 		}
 
 		public void addPrint(string message) {
-			addCode("echo " + message + "\n");
+			addCode("Write-Host \"" + message + "\"\n");
 		}
 
-		public void addQuestion(string question, string correctAnswer, int value) {
-			addPrint(question);
-			addCode("set /p last_answer=\"Respuesta: \"\n");
-			addCode("if %last_answer% == " + correctAnswer + " (\n\tset /a score+=" + value + "\n)\n");
+		public void addOption(string option) {
+			addPrint("* " + option);
 		}
 
 		public void addFinalScore() {
-			addPrint("Your score is %score% out of %max_score%");
+			addPrint("Your score is $score out of " + max_score);
+		}
+
+		public void addAnswerCheck(string correctAnswer, int value, bool includes) {
+			addCode("\n$last_answer = Read-Host \"Respuesta\"\n");
+			if(correctAnswer == ""){
+				// no correct answer
+				addCode("\n\n\n");
+				return;
+			};
+
+			if(includes){
+				addCode("if ($last_answer.ToLower() -like \"*" + correctAnswer.ToLower() + "*\")");
+			}else{
+				addCode("if ($last_answer.ToLower() -eq \"" + correctAnswer.ToLower() + "\")");
+			}
+			addCode("{ $score += " + value + " }\n\n\n\n");
+			max_score += value;
 		}
 
 		public void writeCode(string filename) {
 			File.WriteAllText(filename, code);
 		}
-	} // end CodeGenerator
-} // end namespace
+	}
+}
+

@@ -9,13 +9,18 @@ namespace Cuestionario {
 		
 		public SymbolTable(Parser parser) {
 			this.parser = parser;
+			this.variables["score"] = 1; // int
+			this.variables["last_answer"] = 3; // str
 		}
 
 		public void setVariable(string name, int type) {
+			if(name == "score" || name == "last_answer") {
+				parser.SemErr(name + " is a reserved variable");
+				return;
+			}
 			variables[name] = type;
 		}
 
-		// search the name in all open scopes and return its object node
 		public int getType(string name) {
 			if (variables.ContainsKey(name)) {
 				return variables[name];
@@ -23,7 +28,7 @@ namespace Cuestionario {
 			
 			parser.SemErr(name + " is undeclared");
 		
-			return 0;
+			return 0; // undefined type
 		}
 
 	} // end SymbolTable

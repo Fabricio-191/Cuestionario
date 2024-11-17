@@ -18,7 +18,6 @@ CHARACTERS
   letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
   digit = "0123456789".
   symbols = "+-*/<>=()[]{}:;.,!.?¿¡!".
-  quote = '"'.
   space = ' '.
   cr  = '\r'.
   lf  = '\n'.
@@ -27,7 +26,7 @@ CHARACTERS
 TOKENS
   ident  = letter {letter | digit}.
   number = digit {digit}.
-  stringToken = quote {letter | space | digit | ',' | symbols} quote.
+  stringToken = '"' {letter | space | digit | ',' | symbols} '"'.
 
 COMMENTS FROM "/*" TO "*/" NESTED
 COMMENTS FROM "//" TO lf
@@ -73,29 +72,31 @@ Factor<out int type> = (. type = undefined; .) (
 	| "false"		(. type = boolean; .)
 ).
 
-
 Number<out int value> = number (. value = Convert.ToInt32(t.val); .).
+
+LiteralString<out string val> = stringToken (.
+	val = t.val.Substring(1, t.val.Length - 2); // remove quotes
+.).
 
 Ident<out string name> = ident (. name = t.val; .).
 VarReference<out int type> = (. string name; .) Ident<out name> (. type = tab.getType(name); .).
 
 Question =
+	"question" (. string question; .) LiteralString<out question> (. gen.addPrint(question); .)
 	(.
-	string question;
 	string name;
 	int inputType = -1;
 	int value = 1;
 	string correct = "";
 	bool includes = false;
 	.)
-	"question" LiteralString<out question> (. gen.addPrint(question); .)
 	(Options | Input<out inputType> | InputAssign<out name, out inputType>)
 	[ Correct<out correct, out includes> ] [ "value" Number<out value> ]
 	(. gen.addAnswerCheck(correct, value, includes); .).
 
-LiteralString<out string val> = stringToken (.
-	val = t.val.Substring(1, t.val.Length - 2); // remove quotes
-.).
+Correct<out string correct, out bool includes> = (. includes = false; .)
+	"correct" [ "includes" (. includes = true; .) ]
+	LiteralString<out correct>.
 
 Options = (. string str; .)
 	"options" LiteralString<out str> (. gen.addOption(str); .)
@@ -103,10 +104,6 @@ Options = (. string str; .)
 
 Input<out int type> = (. type = undefined; .) "input" ( "number" (. type = integer; .)  | "text" (. type = str; .) ).
 InputAssign<out string name, out int type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
-
-Correct<out string correct, out bool includes> = (. includes = false; .)
-	"correct" [ "includes" (. includes = true; .) ]
-	LiteralString<out correct>.
 
 IfStat = "if" '(' BooleanExpr ')'
 	Stat

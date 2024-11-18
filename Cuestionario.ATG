@@ -14,7 +14,7 @@ COMPILER Cuestionario
 CHARACTERS
   letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
   digit = "0123456789".
-  symbols = "+-*/<>=()[]{}:;.,!.?¿¡!".
+  symbol = "+-*/<>=()[]{}:;.,?¿¡!".
   space = ' '.
   cr  = '\r'.
   lf  = '\n'.
@@ -24,7 +24,7 @@ TOKENS
   ident  = letter {letter | digit}.
   number = digit {digit}.
   negNumber = '-' digit {digit}.
-  stringToken = '"' {letter | space | digit | ',' | symbols} '"'.
+  stringToken = '"' {letter | space | digit | symbol} '"'.
 
 COMMENTS FROM "/*" TO "*/" NESTED
 COMMENTS FROM "//" TO lf
@@ -100,7 +100,7 @@ IfStat = (. string expr; .) "if" '(' BooleanExpr<out expr> ')' (. gen.addIf(expr
 
 	Block [ "else" (. gen.addCode("else"); .) Block ] (. gen.addCode("\n\n"); .).
 
-Block = '{' (. gen.addCode("{"); .) { Stat } '}' (. gen.addCode("}"); .).
+Block = '{' (. gen.addCode("{\n"); .) { Stat } '}' (. gen.addCode("}\n\n"); .).
 
 WriteStat = (. Type type; string val; .) "print"
 	(Expr<out type, out val> | LiteralString<out val>)

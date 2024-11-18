@@ -9,9 +9,29 @@ namespace Cuestionario {
 
 		private int max_score = 0;
 
-		private void addCode(string code) {
+		private string expr = "";
+
+		public void addToExpr(string s){
+			expr += s;
+		}
+
+		public void addVariableReference(string variable) {
+			addToExpr("$" + variable);
+		}
+
+		public string getExpr(){
+			string expr1 = expr;
+			expr = "";
+			return expr1;
+		}
+
+		public void addCode(string code) {
 			// Console.WriteLine(code);
 			this.code += code;
+		}
+
+		public void addIf(string condition) {
+			addCode("if (" + condition + ")");
 		}
 
 		public void addPrint(string message) {

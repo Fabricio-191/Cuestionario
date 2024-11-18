@@ -36,7 +36,7 @@ if ($last_answer.ToLower() -eq "36"){ $score += 1 }
 Write-Host "Despeje la siguiente ecuacion: 2x + 3 = 7"
 
 $last_answer = Read-Host "Respuesta"
-if ($last_answer.ToLower() -eq "2"){ $score += 1 }
+if ($last_answer.ToLower() -eq "2"){ $score += 2 }
 
 
 
@@ -53,4 +53,6 @@ $last_answer = Read-Host "Respuesta"
 
 
 
-Write-Host "Your score is $score out of 5"
+if ($res -lt 0){}else{}
+
+Write-Host "Your score is $score out of 6"

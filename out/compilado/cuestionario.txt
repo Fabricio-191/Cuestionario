@@ -7,14 +7,18 @@ options "Paris", "Londres", "Madrid", "Berlin" correct "Berlin"
 question "Cuanto es 3 * 12 ?"
 options "36", "24", "48", "12" correct "36"
 
-question "Despeje la siguiente ecuacion: 2x + 3 = 7"
+question "Despeje la siguiente ecuacion: 2x + 3 = 7" value 2
 input number correct "2"
 
 question "Cual es la estrella mas grande del sistema solar ?"
-input text correct includes "Sol"
+es = input text correct includes "Sol"
 
 question "Cual es tu edad ?"
 res = input number
 
-if(res > 30) print "Eres muy viejo"
-else print "Eres muy joven"
+if(res < 0) {
+	print "Edad invalida"
+}
+else {
+	print "Tu edad en meses es: ", res * 12
+}

@@ -6,7 +6,50 @@ using System.Collections.Generic;
 
 namespace Cuestionario {
 	public class CodeGenerator {
-		private string code = "$score=0\n\n";
+		private string code = @"function Show-Menu {
+    param (
+		[string]$Question,
+        [string[]]$Options
+    )
+
+    $selectedIndex = 0
+    $key = $null
+
+    while ($true) {
+        # Limpiar pantalla
+		Clear-Host
+		Write-Host $Question -ForegroundColor Cyan
+
+        # Mostrar opciones
+        for ($i = 0; $i -lt $Options.Count; $i++) {
+            if ($i -eq $selectedIndex) {
+                Write-Host ""-> $($Options[$i])"" -ForegroundColor Yellow
+            } else {
+                Write-Host ""   $($Options[$i])"" -ForegroundColor White
+            }
+        }
+
+        # Capturar tecla presionada
+        $key = $Host.UI.RawUI.ReadKey(""NoEcho,IncludeKeyDown"").VirtualKeyCode
+
+        # Navegación con flechas
+        switch ($key) {
+            38 { # Flecha hacia arriba
+                if ($selectedIndex -gt 0) { $selectedIndex-- }
+            }
+            40 { # Flecha hacia abajo
+                if ($selectedIndex -lt ($Options.Count - 1)) { $selectedIndex++ }
+            }
+            13 { # Enter
+                return $Options[$selectedIndex]
+            }
+        }
+    }
+}
+
+$score=0
+
+";
 
 		private int max_score = 0;
 		private string separator = "* ";
@@ -48,11 +91,8 @@ namespace Cuestionario {
 			addCode("Write-Host \"" + message + "\" -ForegroundColor " + color + " \n");
 		}
 
-		public void addOption(string option) {
-			addPrint(separator + option);
+		public void addOptions(string question, List<string> options) {
 		}
-
-		// -ForegroundColor Green
 
 		public void addFinalScore() {
 			addPrint("Your score is $score out of " + max_score);
@@ -64,9 +104,23 @@ namespace Cuestionario {
 			addCode("}\n\n");
 		}
 
-		public void addQuestion(string correctAnswer, int value, bool includes, string name, Parser.Type inputType) {
-			// gen.addQuestion(question, correct, value, includes);
-			addCode("\n$last_answer = Read-Host \"\nRespuesta\"\n");
+		public void addQuestion(string question, string correctAnswer, int value, bool includes, string name, Parser.Type inputType, string[] options) {
+			if(options == null){
+				addPrint(question);
+				addCode("\n$last_answer = Read-Host \"Respuesta\"\n");
+			}else{
+				string optionsStr = "";
+
+				for(int i = 0; i < options.Length; i++){
+					optionsStr += "\"" + options[i] + "\"";
+					if(i < options.Length - 1){
+						optionsStr += ", ";
+					}
+				}
+
+				addCode("$last_answer = Show-Menu \"" + question + "\" @(" + optionsStr + ")\n");
+			}
+
 			if(inputType == Parser.Type.integer){
 				checkIntegerInput();
 			}
@@ -88,8 +142,6 @@ namespace Cuestionario {
 			}
 			addCode("{ $score += " + value + " }\n\n\n\n");
 			max_score += value;
-
-			addPrint("\n\n");
 		}
 
 		public void writeCode(string filename) {

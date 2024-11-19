@@ -21,7 +21,7 @@ CHARACTERS
   tab = '\t'.
 
 TOKENS
-  ident  = letter {letter | digit}.
+  ident  = letter {letter | '_' | digit}.
   number = digit {digit}.
   negNumber = '-' digit {digit}.
   stringToken = '"' {letter | space | digit | symbol} '"'.
@@ -79,22 +79,27 @@ Question =
 	Type inputType = Type.str;
 	int value = 1;
 	bool includes = false;
+	string[] options = null;
 	.)
-	"question" LiteralString<out question> (. gen.addPrint(question, "Yellow"); .)
+	"question" LiteralString<out question>
 	[ "value" LiteralPositiveNumber<out value> ]
 	(
-		Options |
+		Options<out options> |
 		Input<out inputType> | (
 			InputAssign<out name, out inputType>
 			(. tab.setVariable(name, inputType); .)
 		)
 	)
 	[ "correct" [ "includes" (. includes = true; .) ] LiteralString<out correct> ]
-	(. gen.addQuestion(correct, value, includes, name, inputType); .).
+	(. gen.addQuestion(question, correct, value, includes, name, inputType, options); .).
 
-Options = (. string str; .)
-	"options" LiteralString<out str> (. gen.addOption(str); .)
-	{ ',' LiteralString<out str> (. gen.addOption(str); .) }.
+Options<out string[] options> = (.
+	string str;
+	List<string> optionsList = new List<string>();
+	.)
+	"options" LiteralString<out str> (. optionsList.Add(str); .)
+	{ ',' LiteralString<out str> (. optionsList.Add(str); .) }
+	(. options = optionsList.ToArray(); .).
 
 Input<out Type type> = (. type = Type.integer; .) "input" ( "number" | "text" (. type = Type.str; .) ).
 InputAssign<out string name, out Type type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
@@ -114,7 +119,7 @@ WriteStat = (. Type type; string val; .) "print" (. gen.addCode("Write-Host "); 
 		Expr<out type, out val> (. gen.addCode('(' + val + ')'); .) |
 		LiteralString<out val> (. gen.addCode('"' + val + '"'); .)
 	) }.
-	
+
 Stat = Question | IfStat | WriteStat.
 
 Cuestionario = [Separator] Stat { Stat } (. gen.addFinalScore(); .).

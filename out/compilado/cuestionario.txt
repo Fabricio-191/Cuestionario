@@ -1,21 +1,33 @@
 separator "-> "
 
-question "Cual es la capital de francia ?"
+question "¿Cual es la capital de francia?"
 options "Paris", "Londres", "Madrid", "Berlin" correct "Paris"
 
-question "Cual es la capital de Alemania ?"
+question "¿Cual es la capital de Alemania?"
 options "Paris", "Londres", "Madrid", "Berlin" correct "Berlin"
 
-question "Cuanto es 3 * 12 ?"
+question "¿Cuanto es 3 * 12?"
 options "36", "24", "48", "12" correct "36"
 
-question "Despeje la siguiente ecuacion: 2x + 3 = 7" value 2
+question "Despeje x de la siguiente ecuacion: 2x + 3 = 7" value 2
 input number correct "2"
 
-question "Cual es la estrella mas grande del sistema solar ?"
+question "¿Cual es el resultado de la siguiente ecuacion: 6 / 3 * 2?" value 3
+input number
+
+// if(last_answer == "1") { // PEMDAS
+// 	print "Correcto usando PEMDAS"
+// 	score += 3
+// }
+// if(last_answer == "4") { // PEDMAS
+// 	print "Correcto usando PEDMAS"
+// 	score += 3
+// }
+
+question "¿Cual es la estrella mas grande del sistema solar?"
 es = input text correct includes "Sol"
 
-question "Cual es tu edad ?"
+question "¿Cual es tu edad?"
 res = input number
 
 if (res < 0) {

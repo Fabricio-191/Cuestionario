@@ -93,6 +93,7 @@ Question =
 	[ "correct" [ "includes" (. includes = true; .) ] LiteralString<out correct> ]
 	(. gen.addQuestion(question, correct, value, includes, name, inputType, options); .).
 
+// Arreglar
 Options<out string[] options> = (.
 	string str;
 	List<string> optionsList = new List<string>();
@@ -129,7 +130,8 @@ Separator = (. string val; .) "separator" LiteralString<out val> (. gen.setSepar
 END Cuestionario.
 
 /*
-Asignacion
-Formatear el codigo generado
+Expresiones
+Arreglar lista
 Agregar colores ???
+Formatear el codigo generado
 */

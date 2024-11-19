@@ -1,9 +1,6 @@
 COMPILER Cuestionario
 
-	const int // types
-	  undefined = 0, integer = 1, boolean = 2, str = 3;
-
-	enum Types {
+	public enum Type {
 		undefined,
 		integer,
 		boolean,
@@ -17,16 +14,17 @@ COMPILER Cuestionario
 CHARACTERS
   letter = "ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz".
   digit = "0123456789".
-  symbols = "+-*/<>=()[]{}:;.,!.?¿¡!".
+  symbol = "+-*/<>=()[]{}:;.,?¿¡!".
   space = ' '.
   cr  = '\r'.
   lf  = '\n'.
   tab = '\t'.
 
 TOKENS
-  ident  = letter {letter | digit}.
+  ident  = letter {letter | '_' | digit}.
   number = digit {digit}.
-  stringToken = '"' {letter | space | digit | ',' | symbols} '"'.
+  negNumber = '-' digit {digit}.
+  stringToken = '"' {letter | space | digit | symbol} '"'.
 
 COMMENTS FROM "/*" TO "*/" NESTED
 COMMENTS FROM "//" TO lf
@@ -35,87 +33,105 @@ IGNORE cr + lf + tab
 
 PRODUCTIONS
 
-AddOp = '+' | '-'.
-MulOp = '*' | '/'.
-RelOp = "==" | '<' | '>'.
-
-Expr<out int type> = MathExpr<out type> [
-  	RelOp
-	(. int type1; .)
-    MathExpr<out type1>  (.
-		if (type != type1) SemErr("incompatible types");
-		type = boolean;
-	.)
-].
-
-BooleanExpr = (. int type, type1; .) MathExpr<out type> RelOp MathExpr<out type1> (. 
-		if (type != type1) SemErr("incompatible types");
-	.).
-
-MathExpr<out int type> = (. int type1; .)  Term<out type> {
-	AddOp Term<out type1> (.
-		if (type != integer || type1 != integer) SemErr("integer type expected");
-	.)
-}.
-
-Term<out int type> = Factor<out type> (. int type1; .) {
-	MulOp Factor<out type1> (.
-		if (type != integer || type1 != integer) SemErr("integer type expected");
-	.)
-}.
-
-Factor<out int type> = (. type = undefined; .) (
-	VarReference<out type>
-	| '-' number    (. type = integer; .)
-	| number        (. type = integer; .)
-	| "true"		(. type = boolean; .)
-	| "false"		(. type = boolean; .)
-).
-
-Number<out int value> = number (. value = Convert.ToInt32(t.val); .).
-
+// LiteralBoolean<out bool value> = (. value = True; .) ("true" | "false" (. value = False; .)).
+LiteralNumber<out int value> = (number | negNumber) (. value = Convert.ToInt32(t.val); .).
+LiteralPositiveNumber<out int value> = LiteralNumber<out value> (. if (value < 0) SemErr("positive number expected"); .).
 LiteralString<out string val> = stringToken (.
 	val = t.val.Substring(1, t.val.Length - 2); // remove quotes
 .).
-
 Ident<out string name> = ident (. name = t.val; .).
-VarReference<out int type> = (. string name; .) Ident<out name> (. type = tab.getType(name); .).
+
+AddOp = '+' (. gen.addToExpr(" + "); .) |
+		'-' (. gen.addToExpr(" - "); .).
+
+MulOp = '*' (. gen.addToExpr(" * "); .) |
+		'/' (. gen.addToExpr(" / "); .).
+
+RelOp = "==" (. gen.addToExpr(" -eq "); .) |
+		"!=" (. gen.addToExpr(" -ne "); .) |
+		"<=" (. gen.addToExpr(" -le "); .) |
+		'<'  (. gen.addToExpr(" -lt "); .) |
+		">=" (. gen.addToExpr(" -ge "); .) |
+		'>'  (. gen.addToExpr(" -gt "); .).
+
+Expr<out Type type, out string expr> =
+	(. type = Type.integer; .)
+	MathExpr [ RelOp MathExpr (. type = Type.boolean; .) ]
+	(. expr = gen.getExpr(); .).
+
+BooleanExpr<out string expr> = MathExpr RelOp MathExpr (. expr = gen.getExpr(); .).
+
+MathExpr = Term { AddOp Term }.
+Term = NumericFactor { MulOp NumericFactor }.
+
+NumericFactor =
+	( (. int value; .) LiteralNumber<out value> (. gen.addToExpr(value.ToString()); .) ) |
+	( (. Type type; .) VarReference<out type> (. if (type != Type.integer) SemErr("integer type expected"); .) ).
+
+VarReference<out Type type> = (. string name; .) Ident<out name>
+	(. type = tab.getType(name); gen.addToExpr("$" + name); .).
 
 Question =
-	"question" (. string question; .) LiteralString<out question> (. gen.addPrint(question); .)
 	(.
-	string name;
-	int inputType = -1;
+	string question;
+	string correct = null;
+	string name = null;
+	Type inputType = Type.str;
 	int value = 1;
-	string correct = "";
 	bool includes = false;
+	string[] options = null;
 	.)
-	(Options | Input<out inputType> | InputAssign<out name, out inputType>)
-	[ Correct<out correct, out includes> ] [ "value" Number<out value> ]
-	(. gen.addAnswerCheck(correct, value, includes); .).
+	"question" LiteralString<out question>
+	[ "value" LiteralPositiveNumber<out value> ]
+	(
+		Options<out options> |
+		Input<out inputType> | (
+			InputAssign<out name, out inputType>
+			(. tab.setVariable(name, inputType); .)
+		)
+	)
+	[ "correct" [ "includes" (. includes = true; .) ] LiteralString<out correct> ]
+	(. gen.addQuestion(question, correct, value, includes, name, inputType, options); .).
 
-Correct<out string correct, out bool includes> = (. includes = false; .)
-	"correct" [ "includes" (. includes = true; .) ]
-	LiteralString<out correct>.
+// Arreglar
+Options<out string[] options> = (.
+	string str;
+	List<string> optionsList = new List<string>();
+	.)
+	"options" LiteralString<out str> (. optionsList.Add(str); .)
+	{ ',' LiteralString<out str> (. optionsList.Add(str); .) }
+	(. options = optionsList.ToArray(); .).
 
-Options = (. string str; .)
-	"options" LiteralString<out str> (. gen.addOption(str); .)
-	{ ',' LiteralString<out str> (. gen.addOption(str); .) }.
+Input<out Type type> = (. type = Type.integer; .) "input" ( "number" | "text" (. type = Type.str; .) ).
+InputAssign<out string name, out Type type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
 
-Input<out int type> = (. type = undefined; .) "input" ( "number" (. type = integer; .)  | "text" (. type = str; .) ).
-InputAssign<out string name, out int type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
+IfStat = (. string expr; .)
+	"if" '(' BooleanExpr<out expr> ')' (. gen.addIf(expr); .) Block
+	[ "else" (. gen.addCode("else"); .) Block ] (. gen.addCode("\n\n"); .).
 
-IfStat = "if" '(' BooleanExpr ')'
-	Stat
-	[ "else" Stat ].
+Block = '{' (. gen.addCode("{\n"); .) { Stat } '}' (. gen.addCode("}"); .).
 
-WriteStat = (. int type = -1; .) "print" (Expr<out type> | stringToken)
-	(. /* gen... */ .).
+WriteStat = (. Type type; string val; .) "print" (. gen.addCode("Write-Host "); .)
+	(
+		Expr<out type, out val> (. gen.addCode('(' + val + ')'); .) |
+		LiteralString<out val> (. gen.addCode('"' + val + '"'); .)
+	) 
+	{ ',' (. gen.addCode(" "); .) (
+		Expr<out type, out val> (. gen.addCode('(' + val + ')'); .) |
+		LiteralString<out val> (. gen.addCode('"' + val + '"'); .)
+	) }.
 
-Stat = Question | IfStat | WriteStat | (
-	'(' Stat ')'
-).
+Stat = Question | IfStat | WriteStat.
 
-Cuestionario = Stat { Stat } (. gen.addFinalScore(); .).
+Cuestionario = [Separator] Stat { Stat } (. gen.addFinalScore(); .).
+
+Separator = (. string val; .) "separator" LiteralString<out val> (. gen.setSeparator(val); .).
 
 END Cuestionario.
+
+/*
+Expresiones
+Arreglar lista
+Agregar colores ???
+Formatear el codigo generado
+*/

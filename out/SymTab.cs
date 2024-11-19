@@ -3,17 +3,17 @@ using System.Collections.Generic;
 
 namespace Cuestionario {
 	public class SymbolTable {
-		public Dictionary<string, int> variables = new Dictionary<string, int>();
+		public Dictionary<string, Parser.Type> variables = new Dictionary<string, Parser.Type>();
 		
 		Parser parser;
 		
 		public SymbolTable(Parser parser) {
 			this.parser = parser;
-			this.variables["score"] = 1; // int
-			this.variables["last_answer"] = 3; // str
+			this.variables["score"] = Parser.Type.integer;
+			this.variables["last_answer"] = Parser.Type.str;
 		}
 
-		public void setVariable(string name, int type) {
+		public void setVariable(string name, Parser.Type type) {
 			if(name == "score" || name == "last_answer") {
 				parser.SemErr(name + " is a reserved variable");
 				return;
@@ -21,7 +21,7 @@ namespace Cuestionario {
 			variables[name] = type;
 		}
 
-		public int getType(string name) {
+		public Parser.Type getType(string name) {
 			if (variables.ContainsKey(name)) {
 				return variables[name];
 			}

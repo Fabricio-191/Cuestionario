@@ -1,3 +1,5 @@
+separator "-> "
+
 question "Cual es la capital de francia ?"
 options "Paris", "Londres", "Madrid", "Berlin" correct "Paris"
 
@@ -16,9 +18,8 @@ es = input text correct includes "Sol"
 question "Cual es tu edad ?"
 res = input number
 
-if(res < 0) {
+if (res < 0) {
 	print "Edad invalida"
-}
-else {
+} else {
 	print "Tu edad en meses es: ", res * 12
 }

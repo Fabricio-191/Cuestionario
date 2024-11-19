@@ -39,6 +39,7 @@ LiteralPositiveNumber<out int value> = LiteralNumber<out value> (. if (value < 0
 LiteralString<out string val> = stringToken (.
 	val = t.val.Substring(1, t.val.Length - 2); // remove quotes
 .).
+Ident<out string name> = ident (. name = t.val; .).
 
 AddOp = '+' (. gen.addToExpr(" + "); .) |
 		'-' (. gen.addToExpr(" - "); .).
@@ -67,27 +68,29 @@ NumericFactor =
 	( (. int value; .) LiteralNumber<out value> (. gen.addToExpr(value.ToString()); .) ) |
 	( (. Type type; .) VarReference<out type> (. if (type != Type.integer) SemErr("integer type expected"); .) ).
 
-Ident<out string name> = ident (. name = t.val; .).
 VarReference<out Type type> = (. string name; .) Ident<out name>
 	(. type = tab.getType(name); gen.addToExpr("$" + name); .).
 
 Question =
 	(.
-	string name;
-	Type inputType = Type.undefined;
+	string question;
+	string correct = null;
+	string name = null;
+	Type inputType = Type.str;
 	int value = 1;
-	string correct = "";
 	bool includes = false;
 	.)
-	"question" (. string question; .) LiteralString<out question> (. gen.addPrint(question); .)
+	"question" LiteralString<out question> (. gen.addPrint(question, "Yellow"); .)
 	[ "value" LiteralPositiveNumber<out value> ]
-	(Options | Input<out inputType> | InputAssign<out name, out inputType>)
-	[ Correct<out correct, out includes> ]
-	(. gen.addAnswerCheck(correct, value, includes); .).
-
-Correct<out string correct, out bool includes> = (. includes = false; .)
-	"correct" [ "includes" (. includes = true; .) ]
-	LiteralString<out correct>.
+	(
+		Options |
+		Input<out inputType> | (
+			InputAssign<out name, out inputType>
+			(. tab.setVariable(name, inputType); .)
+		)
+	)
+	[ "correct" [ "includes" (. includes = true; .) ] LiteralString<out correct> ]
+	(. gen.addQuestion(correct, value, includes, name, inputType); .).
 
 Options = (. string str; .)
 	"options" LiteralString<out str> (. gen.addOption(str); .)
@@ -96,18 +99,32 @@ Options = (. string str; .)
 Input<out Type type> = (. type = Type.integer; .) "input" ( "number" | "text" (. type = Type.str; .) ).
 InputAssign<out string name, out Type type> = Ident<out name> '=' Input<out type> (. tab.setVariable(name, type); .).
 
-IfStat = (. string expr; .) "if" '(' BooleanExpr<out expr> ')' (. gen.addIf(expr); .)
+IfStat = (. string expr; .)
+	"if" '(' BooleanExpr<out expr> ')' (. gen.addIf(expr); .) Block
+	[ "else" (. gen.addCode("else"); .) Block ] (. gen.addCode("\n\n"); .).
 
-	Block [ "else" (. gen.addCode("else"); .) Block ] (. gen.addCode("\n\n"); .).
+Block = '{' (. gen.addCode("{\n"); .) { Stat } '}' (. gen.addCode("}"); .).
 
-Block = '{' (. gen.addCode("{\n"); .) { Stat } '}' (. gen.addCode("}\n\n"); .).
-
-WriteStat = (. Type type; string val; .) "print"
-	(Expr<out type, out val> | LiteralString<out val>)
-	{ ',' (Expr<out type, out val> | LiteralString<out val>) }.
-
+WriteStat = (. Type type; string val; .) "print" (. gen.addCode("Write-Host "); .)
+	(
+		Expr<out type, out val> (. gen.addCode('(' + val + ')'); .) |
+		LiteralString<out val> (. gen.addCode('"' + val + '"'); .)
+	) 
+	{ ',' (. gen.addCode(" "); .) (
+		Expr<out type, out val> (. gen.addCode('(' + val + ')'); .) |
+		LiteralString<out val> (. gen.addCode('"' + val + '"'); .)
+	) }.
+	
 Stat = Question | IfStat | WriteStat.
 
-Cuestionario = Stat { Stat } (. gen.addFinalScore(); .).
+Cuestionario = [Separator] Stat { Stat } (. gen.addFinalScore(); .).
+
+Separator = (. string val; .) "separator" LiteralString<out val> (. gen.setSeparator(val); .).
 
 END Cuestionario.
+
+/*
+Asignacion
+Formatear el codigo generado
+Agregar colores ???
+*/

@@ -101,6 +101,46 @@ public class Parser {
 		}
 	}
 
+	private List<Tuple<string, Type, Type>> validOperations = new List<Tuple<string, Type, Type>> {
+		Tuple.Create( "+" , Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "-" , Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "*" , Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "/" , Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "<" , Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( ">" , Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "==", Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "!=", Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "<=", Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( ">=", Type.NUMBER , Type.NUMBER  ),
+		Tuple.Create( "+" , Type.STRING , Type.STRING  ),
+		Tuple.Create( "==", Type.STRING , Type.STRING  ),
+		Tuple.Create( "!=", Type.STRING , Type.STRING  ),
+		Tuple.Create( "==", Type.BOOLEAN, Type.BOOLEAN ),
+		Tuple.Create( "!=", Type.BOOLEAN, Type.BOOLEAN )
+	};
+
+	private Dictionary<string, string> operatorsMap = new Dictionary<string, string> {
+		{ "+" ,  " + "  },
+		{ "-" ,  " - "  },
+		{ "*" ,  " * "  },
+		{ "/" ,  " / "  },
+		{ "==", " -eq " },
+		{ "!=", " -ne " },
+		{ "<=", " -le " },
+		{ "<" , " -lt " },
+		{ ">=", " -ge " },
+		{ ">" , " -gt " }
+	};
+
+	private void validateOperation(string op, Type t1, Type t2) {
+		foreach (var tuple in validOperations) {
+			if (tuple.Item1 == op && tuple.Item2 == t1 && tuple.Item3 == t2) {
+				return;
+			}
+		}
+		
+		SemErr("incompatible types");
+	}
 	
 -->productions
 

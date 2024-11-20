@@ -124,13 +124,11 @@ Factor<out Type type, out string val> = (. type = Type.UNDEFINED; val = null; .)
 
 Question =
 	(.
-	string question;
-	string correct = null;
-	string name = null;
+	string[] options = null;
+	string question, correct = null, name = null;
 	Type inputType = Type.STRING;
 	int value = 1;
 	bool includes = false;
-	string[] options = null;
 	.)
 	"question" LiteralString<out question>
 	[ "value" LiteralPositiveNumber<out value> ]
@@ -141,12 +139,13 @@ Question =
 	)
 	[ "correct" [ "includes" (. includes = true; .) ] LiteralString<out correct> ]
 	(.
-		if(inputType == Type.NUMBER && correct != null) {
+		if(inputType == Type.NUMBER) {
 			if(includes) SemErr("includes not allowed for number inputs");
 
-			// check it's a number
-			int num;
-			if (!int.TryParse(correct, out num)) SemErr("number expected");
+			if(correct != null){
+				int num;
+				if (!int.TryParse(correct, out num)) SemErr("number expected");
+			}
 		}
 		gen.addQuestion(question, correct, value, includes, name, inputType, options);
 	.).
@@ -197,7 +196,5 @@ END Cuestionario.
 
 /*
 Expresiones
-Arreglar lista
-Agregar colores ???
 Formatear el codigo generado
 */

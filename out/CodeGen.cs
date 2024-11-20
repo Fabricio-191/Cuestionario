@@ -93,31 +93,21 @@ namespace Cuestionario {
 
 		public void writeCode(string filename) {
 			string baseCode = @"Function Clear-HostLight {
-    Param (
-        [Parameter(Position=1)]
-        [int32]$Count=1
-    )
+    Param ( [Parameter(Position=1)] [int32]$Count=1 )
 
     $CurrentLine  = $Host.UI.RawUI.CursorPosition.Y
     $ConsoleWidth = $Host.UI.RawUI.BufferSize.Width
-
-    $i = 1
-    for ($i; $i -le $Count; $i++) {
-
+    
+    for ($i = 1; $i -le $Count; $i++) {
         [Console]::SetCursorPosition(0,($CurrentLine - $i))
         [Console]::Write(""{0,-$ConsoleWidth}"" -f "" "")
-
     }
 
     [Console]::SetCursorPosition(0,($CurrentLine - $Count))
-
 }
 		
 function Show-Menu {
-    param (
-		[string]$Question,
-        [string[]]$Options
-    )
+    Param ( [string]$Question, [string[]]$Options )
 
     $selectedIndex = 0
     $key = $null

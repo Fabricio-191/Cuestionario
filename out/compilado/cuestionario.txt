@@ -31,5 +31,5 @@ res = input number
 if (res < 0) {
 	print "Edad invalida"
 } else {
-	print "Tu edad en meses es: ", res * 12
+	print "Tu edad en meses es:", res * 12
 }

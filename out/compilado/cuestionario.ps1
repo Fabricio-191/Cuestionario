@@ -18,8 +18,8 @@ Function Clear-HostLight {
     [Console]::SetCursorPosition(0,($CurrentLine - $Count))
 
 }
-
-Function Show-Menu {
+		
+function Show-Menu {
     param (
 		[string]$Question,
         [string[]]$Options
@@ -29,12 +29,13 @@ Function Show-Menu {
     $key = $null
 
     while ($true) {
+        # Limpiar pantalla
 		Write-Host $Question -ForegroundColor Cyan
 
         # Mostrar opciones
         for ($i = 0; $i -lt $Options.Count; $i++) {
             if ($i -eq $selectedIndex) {
-                Write-Host "-> $($Options[$i])" -ForegroundColor Yellow
+                Write-Host "->  $($Options[$i])" -ForegroundColor Yellow
             } else {
                 Write-Host "   $($Options[$i])" -ForegroundColor White
             }
@@ -47,11 +48,11 @@ Function Show-Menu {
         switch ($key) {
             38 { # Flecha hacia arriba
                 if ($selectedIndex -gt 0) { $selectedIndex-- }
-				Clear-HostLight -Count ($Options.Count + 1)
+				Clear-HostLight ($Options.Count + 1)
             }
             40 { # Flecha hacia abajo
                 if ($selectedIndex -lt ($Options.Count - 1)) { $selectedIndex++ }
-				Clear-HostLight -Count ($Options.Count + 1)
+				Clear-HostLight ($Options.Count + 1)
             }
             13 { # Enter
                 return $Options[$selectedIndex]
@@ -59,7 +60,6 @@ Function Show-Menu {
         }
     }
 }
-
 
 $score=0
 
@@ -78,48 +78,46 @@ if ($last_answer.ToLower() -eq "36"){ $score += 1 }
 
 
 
-Write-Host "Despeje x de la siguiente ecuacion: 2x + 3 = 7"
+Write-Host "Despeje x de la siguiente ecuacion: 2x + 3 = 7" -ForegroundColor Cyan 
 
-$last_answer = Read-Host "Respuesta"
-if ($last_answer -notmatch "^\d+$"){
-  Throw "Invalid input. Please enter a number"
+$last_answer = [int] (Read-Host "Respuesta")
+if ($last_answer -eq 2){ $score += 2 }
+
+
+
+Write-Host "Â¿Cual es el resultado de la siguiente ecuacion: 6 / 3 * 2?" -ForegroundColor Cyan 
+
+$last_answer = [int] (Read-Host "Respuesta")
+
+
+
+if ($last_answer -eq 1){
+Write-Host "Correcto usando PEMDAS"
 }
 
-if ($last_answer.ToLower() -eq "2"){ $score += 2 }
-
-
-
-Write-Host "Â¿Cual es el resultado de la siguiente ecuacion: 6 / 3 * 2?"
-
-$last_answer = Read-Host "Respuesta"
-if ($last_answer -notmatch "^\d+$"){
-  Throw "Invalid input. Please enter a number"
+if ($last_answer -eq 4){
+Write-Host "Correcto usando PEDMAS"
 }
 
+Write-Host "Â¿Cual es la estrella mas grande del sistema solar?" -ForegroundColor Cyan 
 
-
-
-Write-Host "Â¿Cual es la estrella mas grande del sistema solar?"
-
-$last_answer = Read-Host "Respuesta"
+$last_answer = [string] (Read-Host "Respuesta")
 $es = $last_answer
 if ($last_answer.ToLower() -like "*Sol*"){ $score += 1 }
 
 
 
-Write-Host "Â¿Cual es tu edad?"
+Write-Host "Â¿Cual es tu edad?" -ForegroundColor Cyan 
 
-$last_answer = Read-Host "Respuesta"
-if ($last_answer -notmatch "^\d+$"){
-  Throw "Invalid input. Please enter a number"
-}
-
+$last_answer = [int] (Read-Host "Respuesta")
 $res = $last_answer
 
 
 
 if ($res -lt 0){
-Write-Host "Edad invalida"}else{
-Write-Host "Tu edad en meses es: " ($res * 12)}
+Write-Host "Edad invalida"
+}else{
+Write-Host "Tu edad en meses es: " ($res * 12)
+}
 
 Write-Host "Your score is $score out of 6"

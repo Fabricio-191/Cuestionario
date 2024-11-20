@@ -15,14 +15,12 @@ input number correct "2"
 question "¿Cual es el resultado de la siguiente ecuacion: 6 / 3 * 2?" value 3
 input number
 
-// if(last_answer == "1") { // PEMDAS
-// 	print "Correcto usando PEMDAS"
-// 	score += 3
-// }
-// if(last_answer == "4") { // PEDMAS
-// 	print "Correcto usando PEDMAS"
-// 	score += 3
-// }
+if(last_answer == "1") { // PEMDAS
+	print "Correcto usando PEMDAS"
+}
+if(last_answer == "4") { // PEDMAS
+	print "Correcto usando PEDMAS"
+}
 
 question "¿Cual es la estrella mas grande del sistema solar?"
 es = input text correct includes "Sol"

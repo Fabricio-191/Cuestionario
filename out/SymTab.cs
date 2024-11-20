@@ -9,8 +9,8 @@ namespace Cuestionario {
 		
 		public SymbolTable(Parser parser) {
 			this.parser = parser;
-			this.variables["score"] = Parser.Type.integer;
-			this.variables["last_answer"] = Parser.Type.str;
+			this.variables["score"] = Parser.Type.NUMBER;
+			this.variables["last_answer"] = Parser.Type.STRING;
 		}
 
 		public void setVariable(string name, Parser.Type type) {

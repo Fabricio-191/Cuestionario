@@ -39,7 +39,7 @@ namespace Cuestionario {
 		}
 
 		public void addFinalScore() {
-			addPrint("Your score is $score out of " + max_score);
+			addPrint("Your score is $score out of " + max_score, "Magenta");
 		}
 
 		private Dictionary<Parser.Type, string> inputsTypesMap = new Dictionary<Parser.Type, string> {
@@ -70,6 +70,7 @@ namespace Cuestionario {
 			if(name != null){
 				addCode("$" + name + " = $last_answer\n");
 			}
+			addPrint("\n\n");
 
 			if(correctAnswer == null){
 				// no correct answer
@@ -106,14 +107,13 @@ namespace Cuestionario {
     [Console]::SetCursorPosition(0,($CurrentLine - $Count))
 }
 		
-function Show-Menu {
+Function Show-Menu {
     Param ( [string]$Question, [string[]]$Options )
 
     $selectedIndex = 0
     $key = $null
 
     while ($true) {
-        # Limpiar pantalla
 		Write-Host $Question -ForegroundColor " + questionColor + @"
 
         # Mostrar opciones
@@ -132,16 +132,16 @@ function Show-Menu {
         switch ($key) {
             38 { # Flecha hacia arriba
                 if ($selectedIndex -gt 0) { $selectedIndex-- }
-				Clear-HostLight ($Options.Count + 1)
             }
             40 { # Flecha hacia abajo
                 if ($selectedIndex -lt ($Options.Count - 1)) { $selectedIndex++ }
-				Clear-HostLight ($Options.Count + 1)
             }
             13 { # Enter
                 return $Options[$selectedIndex]
             }
         }
+		
+		Clear-HostLight ($Options.Count + 1)
     }
 }
 

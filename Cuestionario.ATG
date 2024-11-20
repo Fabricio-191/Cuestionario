@@ -10,37 +10,6 @@ COMPILER Cuestionario
 
 	public SymbolTable   tab;
 	public CodeGenerator gen;
-
-	public List<Tuple<string, Type, Type>> validOperations = new List<Tuple<string, Type, Type>> {
-		Tuple.Create( "+" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "-" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "*" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "/" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "<" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( ">" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "==", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "!=", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "<=", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( ">=", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "+" , Type.STRING , Type.STRING  ),
-		Tuple.Create( "==", Type.STRING , Type.STRING  ),
-		Tuple.Create( "!=", Type.STRING , Type.STRING  ),
-		Tuple.Create( "==", Type.BOOLEAN, Type.BOOLEAN ),
-		Tuple.Create( "!=", Type.BOOLEAN, Type.BOOLEAN )
-	};
-
-	public Dictionary<string, string> operatorsMap = new Dictionary<string, string> {
-		{ "+" ,  " + "  },
-		{ "-" ,  " - "  },
-		{ "*" ,  " * "  },
-		{ "/" ,  " / "  },
-		{ "==", " -eq " },
-		{ "!=", " -ne " },
-		{ "<=", " -le " },
-		{ "<" , " -lt " },
-		{ ">=", " -ge " },
-		{ ">" , " -gt " }
-	};
   
 /*--------------------------------------------------------------------------*/
 CHARACTERS
@@ -75,7 +44,7 @@ MulExpr<out Type outputType, out string outputExpr> =
 	{
 		MulOp<out op> Factor<out t2, out e2>
 		(. 
-			if(t2 != Type.NUMBER) SemErr("number expected");
+			// Check if the operation is valid
 			outputExpr += operatorsMap[op] + e2;
 		.)
 	}.

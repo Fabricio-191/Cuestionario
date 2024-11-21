@@ -44,7 +44,7 @@ MulExpr<out Type outputType, out string outputExpr> =
 	{
 		MulOp<out op> Factor<out t2, out e2>
 		(. 
-			// Check if the operation is valid
+			validateOperation(outputType, t2, op);
 			outputExpr += operatorsMap[op] + e2;
 		.)
 	}.
@@ -55,8 +55,7 @@ SumExpr<out Type outputType, out string outputExpr> =
 	{
 		AddOp<out op> MulExpr<out t2, out e2>
 		(. 
-			if(t2 != Type.NUMBER && t2 != Type.STRING) SemErr("numeric or string type expected");
-			if (outputType == Type.NUMBER && t2 == Type.STRING) SemErr("number expected");
+			validateOperation(outputType, t2, op);
 			outputExpr += operatorsMap[op] + e2;
 		.)
 	}.
@@ -67,7 +66,7 @@ Expr<out Type outputType, out string outputExpr> =
 	[
 		RelOp<out op> SumExpr<out t2, out e2>
 		(.
-			if(outputType != t2) SemErr("incompatible types");
+			validateOperation(outputType, t2, op);
 			outputExpr = outputExpr + operatorsMap[op] + e2;
 			outputType = Type.BOOLEAN;
 		.)

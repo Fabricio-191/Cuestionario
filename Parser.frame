@@ -101,24 +101,6 @@ public class Parser {
 		}
 	}
 
-	private List<Tuple<string, Type, Type>> validOperations = new List<Tuple<string, Type, Type>> {
-		Tuple.Create( "+" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "-" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "*" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "/" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "<" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( ">" , Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "==", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "!=", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "<=", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( ">=", Type.NUMBER , Type.NUMBER  ),
-		Tuple.Create( "+" , Type.STRING , Type.STRING  ),
-		Tuple.Create( "==", Type.STRING , Type.STRING  ),
-		Tuple.Create( "!=", Type.STRING , Type.STRING  ),
-		Tuple.Create( "==", Type.BOOLEAN, Type.BOOLEAN ),
-		Tuple.Create( "!=", Type.BOOLEAN, Type.BOOLEAN )
-	};
-
 	private Dictionary<string, string> operatorsMap = new Dictionary<string, string> {
 		{ "+" ,  " + "  },
 		{ "-" ,  " - "  },
@@ -132,14 +114,49 @@ public class Parser {
 		{ ">" , " -gt " }
 	};
 
-	private void validateOperation(string op, Type t1, Type t2) {
-		foreach (var tuple in validOperations) {
-			if (tuple.Item1 == op && tuple.Item2 == t1 && tuple.Item3 == t2) {
-				return;
-			}
+	private List<string> asd = new List<string>{"asd", "asd", "asd"};
+
+	private Dictionary<string, Dictionary<Type, Type[]>> validOperations =
+	new Dictionary<string, Dictionary<Type, Type[]>> {
+		{ "+",  new Dictionary<Type, Type[]> {
+			{ Type.NUMBER, new Type[] { Type.NUMBER } },
+			{ Type.STRING, new Type[] { Type.STRING } }
+		} },
+		{ "-",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ "*",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ "/",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ "<",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ "<=", new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ ">",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ ">=", new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ "==", new Dictionary<Type, Type[]> {
+			{ Type.NUMBER, new Type[] { Type.NUMBER } },
+			{ Type.STRING, new Type[] { Type.STRING } },
+			{ Type.BOOLEAN, new Type[] { Type.BOOLEAN } } 
+		} },
+		{ "!=", new Dictionary<Type, Type[]> {
+			{ Type.NUMBER, new Type[] { Type.NUMBER } },
+			{ Type.STRING, new Type[] { Type.STRING } },
+			{ Type.BOOLEAN, new Type[] { Type.BOOLEAN } }
+		} }
+	};
+
+
+	private void validateOperation(Type t1, Type t2, string op) {
+		if (!validOperations.ContainsKey(op)) {
+			SemErr("invalid operator: " + op);
+			return;
 		}
-		
-		SemErr("incompatible types");
+
+		if (!validOperations[op].ContainsKey(t1)) {
+			SemErr("left operand type not valid for operator");
+			return;
+		}
+
+		if (Array.IndexOf(validOperations[op][t1], t2) == -1) {
+			SemErr("right operand type not valid for operator");
+			return;
+		}
 	}
 	
 -->productions

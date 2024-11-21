@@ -1,1 +1,0 @@
-(cd F:\Programacion\Taste) && (Coco.exe Taste.ATG -namespace Taste -o out) && (cd out) && (csc /out:compilado/Taste.exe Taste.cs Scanner.cs Parser.cs SymTab.cs CodeGen.cs) && (cd compilado) && (Taste.exe Test.TAS)

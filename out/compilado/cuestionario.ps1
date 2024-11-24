@@ -109,8 +109,14 @@ Write-Host "
 
 if ($res -lt 0){
 Write-Host "Edad invalida"
+
+
 }else{
 Write-Host "Tu edad en meses es:" ($res * 12)
+
+
 }
+
+Write-Host "Bienvenido al cuestionario de prueba * 2"
 
 Write-Host "Your score is $score out of 6" -ForegroundColor Magenta 

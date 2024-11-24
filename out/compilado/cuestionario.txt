@@ -23,3 +23,7 @@ if (res < 0) {
 } else {
 	print "Tu edad en meses es:", res * 12
 }
+
+print ("Bienvenido al cuestionario de prueba" * 2)
+
+

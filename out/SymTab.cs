@@ -28,8 +28,9 @@ namespace Cuestionario {
 			
 			parser.SemErr(name + " is undeclared");
 		
-			return 0; // undefined type
+			return Parser.Type.UNDEFINED;
 		}
 
 	} // end SymbolTable
 } // end namespace
+

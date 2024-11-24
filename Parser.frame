@@ -114,8 +114,6 @@ public class Parser {
 		{ ">" , " -gt " }
 	};
 
-	private List<string> asd = new List<string>{"asd", "asd", "asd"};
-
 	private Dictionary<string, Dictionary<Type, Type[]>> validOperations =
 	new Dictionary<string, Dictionary<Type, Type[]>> {
 		{ "+",  new Dictionary<Type, Type[]> {
@@ -123,7 +121,10 @@ public class Parser {
 			{ Type.STRING, new Type[] { Type.STRING } }
 		} },
 		{ "-",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
-		{ "*",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
+		{ "*",  new Dictionary<Type, Type[]> {
+			{ Type.STRING, new Type[] { Type.NUMBER } },
+			{ Type.NUMBER, new Type[] { Type.NUMBER } }
+		} },
 		{ "/",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
 		{ "<",  new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },
 		{ "<=", new Dictionary<Type, Type[]> { { Type.NUMBER, new Type[] { Type.NUMBER } } } },

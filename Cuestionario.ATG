@@ -88,6 +88,7 @@ Factor<out Type type, out string val> = (. type = Type.UNDEFINED; val = null; .)
 			val = t.val.Substring(1, t.val.Length - 2); // remove quotes
 		.) |
 		("true" | "false") (. type = Type.BOOLEAN; val = '$' + t.val; .)
+		| '(' Expr<out type, out val> ')'
 	).
 
 Question =
@@ -152,7 +153,8 @@ WriteStat = (. Type type; string val; .) "print" (. gen.addCode("Write-Host "); 
 			if(type == Type.STRING) gen.addCode('"' + val + '"');
 			else gen.addCode('(' + val + ')');
 		.)
-	}.
+	}
+	(. gen.addCode("\n\n"); .).
 
 Stat = Question | IfStat | WriteStat.
 
@@ -161,8 +163,3 @@ Cuestionario = [Separator] Stat { Stat } (. gen.addFinalScore(); .).
 Separator = (. string val; .) "separator" LiteralString<out val> (. gen.setSeparator(val); .).
 
 END Cuestionario.
-
-/*
-Expresiones
-Formatear el codigo generado
-*/

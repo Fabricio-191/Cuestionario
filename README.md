@@ -1,8 +1,8 @@
 ## Para ejecutar el copilador:
 
-1. Hay que agregar el compilador de c# `csc.exe` a las variables de entorno, esto se logra modificando la variable de entorno PATH y agregandole la entrada `C:\Windows\Microsoft.NET\Framework\v4.0.30319` (probablemente no tengan esa version exacta asi que pueden colocar otra, preferiblemente `v4.x.x`, solo hay que asegurarse que dentro este el archivo `csc.exe`)
-2. Abrir una terminal y posicionarla en la carpeta con el proyecto
-3. Utilizar el comando: `cmd /c ".\compilar.bat"`
+1. Hay que agregar el compilador de C# `csc.exe` a las variables de entorno, esto se logra modificando la variable de entorno PATH y agregandole la entrada `C:\Windows\Microsoft.NET\Framework\v4.0.30319` (probablemente no tengan esa version exacta asi que pueden colocar otra, preferiblemente `v4.x.x`, solo hay que asegurarse que dentro este el archivo `csc.exe`)
+2. Abrir una terminal (cmd o powershell) y posicionarla en la carpeta con el proyecto
+3. Utilizar el comando: `cmd /c ".\compilar.bat"` (si se esta utilizando un cmd se puede simplemente escribir `compilar`)
 
 ##### El archivo `compilar.bat` tiene una sucecion de comandos que:
 
